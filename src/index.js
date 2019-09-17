@@ -7,19 +7,31 @@ import {SafeAreaView, StyleSheet, View, Animated} from 'react-native';
 // Animated.ScrollView
 
 export default function App() {
-  const [ballY, setBallY] = useState(new Animated.Value(0));
+  const [ballY] = useState(new Animated.Value(0));
+  const [ballX] = useState(Animated.divide(ballY, 2));
 
   useEffect(() => {
-    Animated.timing(ballY, {
-      toValue: 500,
-      duration: 1000,
+    // linear
+    // Animated.timing(ballY, {
+    //   toValue: 500,
+    //   duration: 1000,
+    // }).start();
+
+    // linear com efeito elastico
+    // Animated.spring(ballY, {
+    //   toValue: 300,
+    //   bounciness: 20,
+    // }).start();
+
+    Animated.decay(ballY, {
+      velocity: 1,
     }).start();
   }, [ballY]);
 
   return (
     <SafeAreaView>
       <View style={styles.container}>
-        <Animated.View style={[styles.ball, {top: ballY}]} />
+        <Animated.View style={[styles.ball, {top: ballY, left: ballX}]} />
       </View>
     </SafeAreaView>
   );
