@@ -8,13 +8,13 @@ import {SafeAreaView, StyleSheet, View, Animated} from 'react-native';
 
 export default function App() {
   const [ballY] = useState(new Animated.Value(0));
-  const [ballX] = useState(Animated.divide(ballY, 2));
+  const [ballX] = useState(new Animated.Value(0));
 
   useEffect(() => {
     // linear
     // Animated.timing(ballY, {
-    //   toValue: 500,
-    //   duration: 1000,
+    //   toValue: 200,
+    //   duration: 500,
     // }).start();
 
     // linear com efeito elastico
@@ -23,10 +23,42 @@ export default function App() {
     //   bounciness: 20,
     // }).start();
 
-    Animated.decay(ballY, {
-      velocity: 1,
-    }).start();
-  }, [ballY]);
+    // Animated.decay(ballY, {
+    //   velocity: 1,
+    // }).start();
+
+    // Animated.stagger(value,[]);
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(ballY, {
+          toValue: 200,
+          duration: 500,
+        }),
+
+        Animated.delay(100),
+
+        Animated.timing(ballX, {
+          toValue: 200,
+          duration: 500,
+        }),
+
+        Animated.delay(100),
+
+        Animated.timing(ballY, {
+          toValue: 0,
+          duration: 500,
+        }),
+
+        Animated.delay(100),
+
+        Animated.timing(ballX, {
+          toValue: 0,
+          duration: 500,
+        }),
+      ]),
+    ).start();
+  }, [ballX, ballY]);
 
   return (
     <SafeAreaView>
