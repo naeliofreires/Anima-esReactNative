@@ -8,12 +8,14 @@ import {
   StatusBar,
   StyleSheet,
   ScrollView,
+  Animated,
 } from 'react-native';
 
 import User from './components/User';
 
 export default class App extends Component {
   state = {
+    scrollOffset: new Animated.Value(0),
     userSelected: null,
     userInfoVisible: false,
     users: [
@@ -57,6 +59,16 @@ export default class App extends Component {
         likes: 350,
         color: '#E75A63',
       },
+      {
+        id: 5,
+        name: 'Naélio Freires',
+        description: 'Desenvolvedor React!',
+        avatar: 'https://avatars2.githubusercontent.com/u/861751?s=460&v=4',
+        thumbnail:
+          'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=400&q=80',
+        likes: 350,
+        color: '#E75A00',
+      },
     ],
   };
 
@@ -73,7 +85,15 @@ export default class App extends Component {
 
   renderList = () => (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView
+        scrollEventThrottle={16}
+        onScroll={Animated.event([
+          {
+            nativeEvent: {
+              contentOffset: {y: this.state.scrollOffset},
+            },
+          },
+        ])}>
         {this.state.users.map(user => (
           <User
             key={user.id}
@@ -92,16 +112,36 @@ export default class App extends Component {
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
 
-        <View style={styles.header}>
+        <Animated.View
+          style={[
+            styles.header,
+            {
+              height: this.state.scrollOffset.interpolate({
+                inputRange: [0, 140],
+                outputRange: [200, 90],
+                extrapolate: 'clamp', // quando passar de 140, n faça mais nada
+              }),
+            },
+          ]}>
           <Image
             style={styles.headerImage}
             source={userSelected ? {uri: userSelected.thumbnail} : null}
           />
 
-          <Text style={styles.headerText}>
+          <Animated.Text
+            style={[
+              styles.headerText,
+              {
+                fontSize: this.state.scrollOffset.interpolate({
+                  inputRange: [120, 140],
+                  outputRange: [24, 16],
+                  extrapolate: 'clamp',
+                }),
+              },
+            ]}>
             {userSelected ? userSelected.name : 'GoNative'}
-          </Text>
-        </View>
+          </Animated.Text>
+        </Animated.View>
         {this.state.userInfoVisible ? this.renderDetail() : this.renderList()}
       </View>
     );
@@ -125,7 +165,6 @@ const styles = StyleSheet.create({
   },
 
   headerText: {
-    fontSize: 24,
     fontWeight: '900',
     color: '#FFF',
     backgroundColor: 'transparent',
