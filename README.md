@@ -1,4 +1,4 @@
-# Animações com React Native
+# :iphone: Animações com React Native
 
 - Utilizando o Animated do React Native para aplicar animações na aplicação, melhorando a experiência para o usuário.
 
