@@ -1,97 +1,136 @@
-import React, {useState, useEffect} from 'react';
-import {SafeAreaView, StyleSheet, View, Animated} from 'react-native';
+import React, {Component} from 'react';
 
-// Animated.View
-// Animated.Text
-// Animated.Image
-// Animated.ScrollView
+import {
+  View,
+  Image,
+  Text,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 
-export default function App() {
-  const [ballY] = useState(new Animated.Value(0));
+import User from './components/User';
 
-  useEffect(() => {
-    Animated.timing(ballY, {
-      toValue: 300,
-      duration: 500,
-    }).start();
-  }, [ballY]);
+export default class App extends Component {
+  state = {
+    userSelected: null,
+    userInfoVisible: false,
+    users: [
+      {
+        id: 1,
+        name: 'Diego Fernandes',
+        description: 'Head de programação!',
+        avatar: 'https://avatars0.githubusercontent.com/u/2254731?s=460&v=4',
+        thumbnail:
+          'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=400&q=80',
+        likes: 200,
+        color: '#57BCBC',
+      },
+      {
+        id: 2,
+        name: 'Robson Marques',
+        description: 'Head de empreendedorismo!',
+        avatar: 'https://avatars2.githubusercontent.com/u/861751?s=460&v=4',
+        thumbnail:
+          'https://images.unsplash.com/photo-1490633874781-1c63cc424610?auto=format&fit=crop&w=400&q=80',
+        likes: 350,
+        color: '#E75A63',
+      },
+      {
+        id: 3,
+        name: 'Cleiton Souza',
+        description: 'Head de mindset!',
+        avatar: 'https://avatars0.githubusercontent.com/u/4669899?s=460&v=4',
+        thumbnail:
+          'https://images.unsplash.com/photo-1506440905961-0ab11f2ed5bc?auto=format&fit=crop&w=400&q=80',
+        likes: 250,
+        color: '#2E93E5',
+      },
+      {
+        id: 4,
+        name: 'Robson Marques',
+        description: 'Head de empreendedorismo!',
+        avatar: 'https://avatars2.githubusercontent.com/u/861751?s=460&v=4',
+        thumbnail:
+          'https://images.unsplash.com/photo-1490633874781-1c63cc424610?auto=format&fit=crop&w=400&q=80',
+        likes: 350,
+        color: '#E75A63',
+      },
+    ],
+  };
 
-  return (
-    <SafeAreaView>
-      <View style={styles.container}>
-        <Animated.View
-          style={[
-            styles.ball,
-            {
-              top: ballY,
-              opacity: ballY.interpolate({
-                inputRange: [0, 300],
-                outputRange: [1, 0.2],
-                extrapolate: 'clamp',
-              }),
-            },
-          ]}
-        />
-      </View>
-    </SafeAreaView>
+  selectUser = user => {
+    this.setState({userSelected: user});
+    this.setState({userInfoVisible: true});
+  };
+
+  renderDetail = () => (
+    <View>
+      <User user={this.state.userSelected} onPress={() => {}} />
+    </View>
   );
+
+  renderList = () => (
+    <View style={styles.container}>
+      <ScrollView>
+        {this.state.users.map(user => (
+          <User
+            key={user.id}
+            user={user}
+            onPress={() => this.selectUser(user)}
+          />
+        ))}
+      </ScrollView>
+    </View>
+  );
+
+  render() {
+    const {userSelected} = this.state;
+
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" />
+
+        <View style={styles.header}>
+          <Image
+            style={styles.headerImage}
+            source={userSelected ? {uri: userSelected.thumbnail} : null}
+          />
+
+          <Text style={styles.headerText}>
+            {userSelected ? userSelected.name : 'GoNative'}
+          </Text>
+        </View>
+        {this.state.userInfoVisible ? this.renderDetail() : this.renderList()}
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 30,
   },
-  ball: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: 'red',
+
+  header: {
+    paddingTop: Platform.OS === 'ios' ? 40 : 20,
+    paddingHorizontal: 15,
+    backgroundColor: '#2E93E5',
+    height: 200,
+  },
+
+  headerImage: {
+    ...StyleSheet.absoluteFillObject,
+  },
+
+  headerText: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#FFF',
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    left: 15,
+    bottom: 20,
   },
 });
-
-/*
-
-  => linear com efeito elastico
-
-  Animated.spring(ballY, {
-    toValue: 300,
-    bounciness: 20,
-  }).start();
-
-  Animated.decay(ballY, {
-    velocity: 1,
-  }).start();
-
-  Animated.stagger(value,[]);
-
-  Animated.loop(
-    Animated.sequence([
-      Animated.timing(ballY, {
-        toValue: 200,
-        duration: 500,
-      }),
-
-      Animated.delay(100),
-
-      Animated.timing(ballX, {
-        toValue: 200,
-        duration: 500,
-      }),
-
-      Animated.delay(100),
-
-      Animated.timing(ballY, {
-        toValue: 0,
-        duration: 500,
-      }),
-
-      Animated.delay(100),
-
-      Animated.timing(ballX, {
-        toValue: 0,
-        duration: 500,
-      }),
-    ]),
-  ).start();
-*/
