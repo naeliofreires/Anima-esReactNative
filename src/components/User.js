@@ -7,11 +7,49 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   Animated,
+  PanResponder,
+  Dimensions,
+  Alert,
 } from 'react-native';
+
+const {width} = Dimensions.get('window');
 
 export default function User({user, onPress}) {
   const [opacity] = useState(new Animated.Value(0));
   const [offSet] = useState(new Animated.ValueXY({x: 0, y: 50}));
+
+  const _panResponder = PanResponder.create({
+    onPanResponderTerminationRequest: () => false, // continue executando mesmo se eu sair em cima do elemento
+    onMoveShouldSetPanResponder: () => true,
+
+    // quando o usuario clicar e arrastar
+    onPanResponderMove: Animated.event([
+      null,
+      {
+        dx: offSet.x,
+      },
+    ]),
+
+    // quando o usuario soltar o card
+    onPanResponderRelease: () => {
+      if (offSet.x._value < -200) {
+        Alert.alert('Deleted!');
+      }
+
+      Animated.spring(offSet.x, {
+        toValue: 0,
+        bounciness: 10,
+      }).start();
+    },
+
+    // solucao para o Android
+    onPanResponderTerminate: () => {
+      Animated.spring(offSet.x, {
+        toValue: 0,
+        bounciness: 10,
+      }).start();
+    },
+  });
 
   useEffect(() => {
     Animated.parallel([
@@ -32,9 +70,19 @@ export default function User({user, onPress}) {
 
   return (
     <Animated.View
-      // {translateY: offSet.y}
+      {..._panResponder.panHandlers}
       style={[
-        {transform: [...offSet.getTranslateTransform()]},
+        {
+          transform: [
+            ...offSet.getTranslateTransform(),
+            {
+              rotateZ: offSet.x.interpolate({
+                inputRange: [-width, width],
+                outputRange: ['-50deg', '50deg'],
+              }),
+            },
+          ],
+        },
         {opacity: opacity},
       ]}>
       <TouchableWithoutFeedback onPress={onPress}>
